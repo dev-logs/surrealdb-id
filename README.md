@@ -29,7 +29,7 @@ A Link can be both `record` or `id`.
 ### Create a Link
 #### Simplest way
 ```rust
-let user_link: Link<User> = Link<User>::from(("user", "devlog"));
+let user_link: Link<User> = Link::<User>::from(("user", "devlog"));
 ```
 #### From any type that impl `From<T> for RecordId` type  
 ```rust
@@ -43,7 +43,7 @@ impl From<UserId> for RecordId {
     }
 }
 
-let user_link: Link<User> = Link<User>::from(UserId {display_name: "Devlog"});
+let user_link: Link<User> = Link::<User>::from(UserId {display_name: "Devlog"});
 ```
 #### Bonus: Create link with new keyword
 This approach offers greater type safety compared to using From as mentioned earlier, as it restricts users to specific parameters when creating a link.
@@ -59,7 +59,7 @@ impl NewLink<User, String> for Link<User> {
 //  TOOD: Impl here
 //}
 
-let user_link = Link::User::new(("Devlog"));
+let user_link = Link::<User>::new(("Devlog"));
 ```
 ### Link usage
 ```rust
