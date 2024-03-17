@@ -1,4 +1,3 @@
-use std::collections::BTreeMap;
 use std::ops::Deref;
 use serde_derive::{Deserialize, Serialize};
 use surrealdb::opt::{RecordId};
@@ -53,3 +52,8 @@ impl <T, R> From<R> for Link<T> where
         Self::Id(RecordId::from(value))
     }
 }
+
+pub trait NewLink<T, P> where T: Into<RecordId> + Sized {
+    fn new (params: P) -> Link<T>;
+}
+

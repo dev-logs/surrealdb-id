@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 
 use surrealdb::opt::RecordId;
 use crate::link::Link;
-use crate::relation::r#trait::IntoRelation;
 
 /// This class represent for feature relation of Surrealdb
 /// https://docs.surrealdb.com/docs/surrealql/statements/relate
@@ -19,14 +18,14 @@ use crate::relation::r#trait::IntoRelation;
 /// // RELATE user:join -> married -> user:marry SET date = "2024/01/01"
 /// married.into_relation(john, marry);
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Relation<I, R, O> where
     R: Sized + Into<RecordId>,
     I: Sized + Into<RecordId>,
     O: Sized + Into<RecordId>
 {
-    pub r#in: I,
-    pub out: O,
+    pub r#in: Option<I>,
+    pub out: Option<O>,
     #[serde(flatten)]
     pub relation: R
 }
