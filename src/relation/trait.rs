@@ -22,3 +22,23 @@ impl<I, R, O> IntoRelation<I, O> for R where
         }
     }
 }
+
+impl<I, R, O> Into<RecordId> for Relation<I, R, O> where
+    R: Sized + Into<RecordId>,
+    I: Sized + Into<RecordId>,
+    O: Sized + Into<RecordId>
+{
+    fn into(self) -> RecordId {
+        self.relation.into()
+    }
+}
+
+impl<I, R, O> Into<RecordId> for &Relation<I, R, O> where
+    R: Sized + Into<RecordId> + Clone,
+    I: Sized + Into<RecordId>,
+    O: Sized + Into<RecordId>
+{
+    fn into(self) -> RecordId {
+        (&self.relation).clone().into()
+    }
+}

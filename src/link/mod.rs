@@ -5,7 +5,16 @@ use surrealdb::sql::{Value};
 
 /// A relation between table in surrealdb
 /// It could be either link in case the query is not perform fetch
-/// If fetch is perform the link will be None instead the record will be Some(T)
+/// Usage:
+/// ```
+/// use surrealdb_id::link::Link;
+/// let link = Link::from(("user", "devlog"));
+/// ```
+/// Receive result from query
+/// ```
+/// use surrealdb_id::link::Link;
+/// let link: Option<Link<User>> = db.query("SELECT * from user:devlog").await?.take(0);
+/// ```
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum Link<T> where T: Sized + Into<RecordId> {
@@ -23,6 +32,12 @@ impl<T> Link<T> where T: Clone + Sized + Into<RecordId> {
 }
 
 impl<T> Into<RecordId> for Link<T> where T: Clone + Sized + Into<RecordId> {
+    fn into(self) -> RecordId {
+        self.id()
+    }
+}
+
+impl<T> Into<RecordId> for &Link<T> where T: Clone + Sized + Into<RecordId> {
     fn into(self) -> RecordId {
         self.id().clone()
     }
