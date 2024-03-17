@@ -19,7 +19,7 @@ mod test {
     use surrealdb::sql::Id;
     use surrealdb::Surreal;
     use crate::link::Link;
-    use crate::relation::Relation;
+    use crate::relation::{IdRelation, LinkRelation, Relation};
 
     // Entity 1
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -59,7 +59,7 @@ mod test {
     }
 
     #[tokio::test]
-    pub async fn should_convert_to_link() -> surrealdb::Result<()> {
+    pub async fn should_convert_to_relation() -> surrealdb::Result<()> {
         let db = Surreal::new::<Mem>(()).await?;
         db.use_ns("test").use_db("test").await?;
 
@@ -68,12 +68,26 @@ mod test {
         db.create(Resource::RecordId(user.id())).content(&user).await?;
         db.create(Resource::RecordId(blogPost.id())).content(&blogPost).await?;
 
-        let relation: Option<Relation<Discussion, User, BlogPost>> = db.query(
+        let relation: Option<LinkRelation<User, Discussion, BlogPost>> = db.query(
             "RELATE user:Devlog->discuss->blog:`How to use surrealdb` SET content='Hello I really want to know more', created_at='2020-01-01T00:00:00Z'"
         ).await?.take(0)?;
 
         assert!(&relation.is_some());
         assert_ne!(relation.unwrap().r#in.id().id.to_string(), "user:Devlog");
+        Ok(())
+    }
+
+    #[tokio::test]
+    pub async fn should_work_with_id_relation() -> surrealdb::Result<()> {
+        let db = Surreal::new::<Mem>(()).await?;
+        db.use_ns("test").use_db("test").await?;
+
+        let relation: Option<IdRelation<Discussion>> = db.query(
+            "RELATE user:Devlog->discuss->blog:`How to use surrealdb` SET content='Hello I really want to know more', created_at='2020-01-01T00:00:00Z'"
+        ).await?.take(0)?;
+
+        assert!(&relation.is_some());
+        assert_ne!(relation.unwrap().r#in.id.to_string(), "user:Devlog");
         Ok(())
     }
 }

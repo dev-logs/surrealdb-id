@@ -43,6 +43,6 @@ impl<I, R, O> Deref for Relation<I, R, O> where
     }
 }
 
-type IdRelation<T> = Relation<RecordId, T, RecordId>;
+pub type IdRelation<T> = Relation<RecordId, T, RecordId>;
 
-type LinkRelation<I, R, O> = Relation<Link<I>, R, Link<O>>;
+pub type LinkRelation<I, R, O> = Relation<Link<I>, R, Link<O>>;

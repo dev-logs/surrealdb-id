@@ -112,7 +112,7 @@ relation.relation.content // => I want to learn more
 Link here:
 https://crates.io/crates/surreal-derive-plus
 
-When it come together, it can prevent you from  
+When it come together, they will help you reduce your effort on writing surrealql
 ```rust
 let user: RecordId = RecordId::from(("user", "Devlog"));
 let blogPost: RecordId = RecordId::from(("blogPost", "How to use surrealdb"));
