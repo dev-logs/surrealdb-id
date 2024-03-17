@@ -46,12 +46,18 @@ impl From<UserId> for RecordId {
 let user_link: Link<User> = Link<User>::from(UserId {display_name: "Devlog"});
 ```
 #### Bonus: Create link with new keyword
+This approach offers greater type safety compared to using From as mentioned earlier, as it restricts users to specific parameters when creating a link.
 ```rust
-impl NewLink<User, (String)> for Link<User> {
-    fn new(params: (String, String)) -> Link<User> {
-        Link::<User>::from(UserId { display_name: params.0 })
+impl NewLink<User, String> for Link<User> {
+    fn new(params: String) -> Link<User> {
+        Link::<User>::from(UserId { display_name: params })
     }
 }
+
+// Or with multiple params
+//impl NewLink<User, (String, DateTime)> for Link<User> {
+//  TOOD: Impl here
+//}
 
 let user_link = Link::User::new(("Devlog"));
 ```
