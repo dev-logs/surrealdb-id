@@ -10,6 +10,7 @@ use surrealdb::sql::{Value};
 /// use surrealdb_id::link::Link;
 /// let link = Link::from(("user", "devlog"));
 /// ```
+///
 /// Receive result from query
 /// ```
 /// use surrealdb_id::link::Link;
@@ -71,4 +72,3 @@ impl <T, R> From<R> for Link<T> where
 pub trait NewLink<T, P> where T: Into<RecordId> + Sized {
     fn new (params: P) -> Link<T>;
 }
-

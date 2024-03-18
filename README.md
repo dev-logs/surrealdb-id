@@ -103,7 +103,7 @@ impl NewLink<User, UserId> for Link<User> {
 }
 
 #[tokio::test]
-pub async fn should_work_with_link() -> surrealdb::Result<()> {
+pub async fn test() -> surrealdb::Result<()> {
     let db = Surreal::new::<Mem>(()).await?;
     db.use_ns("test").use_db("test").await?;
     let user = User { name: "Devlog".to_string() };
@@ -138,8 +138,8 @@ The relation will wrap `in` and `out` in a `Link`
 let relation: LinkRelation<User, Discussion, Blog> = db.query("SELECT * FROM RELATE user:Devlog -> discuss -> blog:⟨How to use surrealdb⟩ FETCH in, out").await?.take(0)?;
 relation.r#in.id().id // => Devlog
 relation.r#in.id().tb // => user
-relation.r#out.id().id // ⟨How to use surrealdb⟩
-relation.r#out.id().tb // => blog
+relation.out.id().id // ⟨How to use surrealdb⟩
+relation.out.id().tb // => blog
 ```
 ## Relation usage
 For example, you are in context of wring blog post, you want to
@@ -192,7 +192,7 @@ impl Into<RecordId> for BlogPost {
 }
 
 #[tokio::test]
-pub async fn should_convert_to_relation() -> surrealdb::Result<()> {
+pub async fn test() -> surrealdb::Result<()> {
     let db = Surreal::new::<Mem>(()).await?;
     db.use_ns("test").use_db("test").await?;
 
@@ -209,7 +209,7 @@ pub async fn should_convert_to_relation() -> surrealdb::Result<()> {
     assert_eq!(relation.r#in.as_ref().unwrap().id().id.to_string(), "Devlog".to_owned());
     assert_eq!(relation.r#in.as_ref().unwrap().id().tb.as_str(), "user");
     assert_eq!(relation.out.as_ref().unwrap().id().id.to_string(), "⟨How to use surrealdb⟩".to_owned());
-    assert_eq!(relation.out.as_ref().unwrap().id().tb.as_str(), "blog");
+    assert_eq!(reation.out.as_ref().unwrap().id().tb.as_str(), "blog");
 
     let relation: Option<LinkRelation<User, Discussion, BlogPost>> = db.query(
         "SELECT * FROM (RELATE user:Devlog->discuss->blog:⟨How to use surrealdb⟩ SET content='Hello I really want to know more', created_at='2020-01-01T00:00:00Z') FETCH in, out"
