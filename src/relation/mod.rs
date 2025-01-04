@@ -1,9 +1,9 @@
 pub mod r#trait;
 
-use std::ops::Deref;
 use serde::{Deserialize, Serialize};
+use std::ops::Deref;
+use surrealdb::sql::Thing;
 
-use surrealdb::opt::RecordId;
 use crate::link::Link;
 
 /// https://crates.io/crates/surreal_derive_plus
@@ -18,23 +18,27 @@ use crate::link::Link;
 /// let relation = married.relate(john, marry);
 /// // RELATE user:join -> married -> user:marry SET date = "2024/01/01"
 /// ```
-
+#[deprecated(
+    note = "This crate is deprecated. Please use surreal_derive and surreal_devl instead."
+)]
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Relation<I, R, O> where
-    R: Sized + Into<RecordId>,
-    I: Sized + Into<RecordId>,
-    O: Sized + Into<RecordId>
+pub struct Relation<I, R, O>
+where
+    R: Sized + Into<Thing>,
+    I: Sized + Into<Thing>,
+    O: Sized + Into<Thing>,
 {
     pub r#in: Option<I>,
     pub out: Option<O>,
     #[serde(flatten)]
-    pub relation: R
+    pub relation: R,
 }
 
-impl<I, R, O> Deref for Relation<I, R, O> where
-    R: Sized + Into<RecordId>,
-    I: Into<RecordId>,
-    O: Sized + Into<RecordId>
+impl<I, R, O> Deref for Relation<I, R, O>
+where
+    R: Sized + Into<Thing>,
+    I: Into<Thing>,
+    O: Sized + Into<Thing>,
 {
     type Target = R;
 
@@ -52,7 +56,7 @@ impl<I, R, O> Deref for Relation<I, R, O> where
 ///
 /// let relation: IdRelation<Friend> = db.query("RELATE user:devlog -> friend -> user:tien").await?.take(0);
 /// ```
-pub type IdRelation<T> = Relation<RecordId, T, RecordId>;
+pub type IdRelation<T> = Relation<Thing, T, Thing>;
 
 /// LinkRelation will support type for r#in and out
 /// ```

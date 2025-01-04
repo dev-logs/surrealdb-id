@@ -1,74 +1,113 @@
-use std::ops::Deref;
 use serde_derive::{Deserialize, Serialize};
-use surrealdb::opt::{RecordId};
-use surrealdb::sql::{Value};
+use std::ops::Deref;
+use surrealdb::sql::{Thing, Value};
 
-/// A relation between table in surrealdb
-/// It could be either link in case the query is not perform fetch
-/// Usage:
-/// ```
-/// use surrealdb_id::link::Link;
-/// let link = Link::from(("user", "devlog"));
-/// ```
-///
-/// Receive result from query
-/// ```
-/// use surrealdb_id::link::Link;
-/// let link: Option<Link<User>> = db.query("SELECT * from user:devlog").await?.take(0);
-/// ```
+pub trait SurrealId: From<Value> {
+    fn id(&self) -> Thing;
+}
+
+#[deprecated(
+    note = "This crate is deprecated. Please use surreal_derive and surreal_devl instead."
+)]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(untagged)]
-pub enum Link<T> where T: Sized + Into<RecordId> {
-    Id(RecordId),
+pub enum Link<T>
+where
+    T: SurrealId,
+{
+    Id(Thing),
     Record(T),
 }
 
-impl<T> Link<T> where T: Clone + Sized + Into<RecordId> {
-    pub fn id(&self) -> RecordId {
+impl<T> PartialEq for Link<T>
+where
+    T: SurrealId,
+{
+    fn eq(&self, other: &Self) -> bool {
+        other.id() == self.id()
+    }
+}
+
+impl<T> Link<T>
+where
+    T: SurrealId,
+{
+    pub fn id(&self) -> Thing {
         match self {
             Self::Id(id) => id.clone(),
-            Self::Record(r) => r.clone().into()
+            Self::Record(r) => r.id(),
+        }
+    }
+
+    pub fn record(self) -> T {
+        match self {
+            Self::Id(_) => {
+                panic!("Expected a record got an id")
+            }
+            Self::Record(r) => r,
         }
     }
 }
 
-impl<T> Into<RecordId> for Link<T> where T: Clone + Sized + Into<RecordId> {
-    fn into(self) -> RecordId {
+impl<T> Into<Thing> for Link<T>
+where
+    T: SurrealId,
+{
+    fn into(self) -> Thing {
         self.id()
     }
 }
 
-impl<T> Into<RecordId> for &Link<T> where T: Clone + Sized + Into<RecordId> {
-    fn into(self) -> RecordId {
+impl<T> Into<Thing> for &Link<T>
+where
+    T: SurrealId,
+{
+    fn into(self) -> Thing {
         self.id().clone()
     }
 }
 
-impl<T> From<Link<T>> for Value where T: Clone + Sized + Into<RecordId> {
-    fn from(value: Link<T>) -> Self {
-        Value::Thing(value.id())
+impl<T> Into<Value> for Link<T>
+where
+    T: SurrealId,
+{
+    fn into(self) -> Value {
+        Value::Thing(self.id())
     }
 }
 
-impl<T> Deref for Link<T> where T: Clone + Sized + Into<RecordId> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        match self {
-            Link::Id(_) => panic!("The link can not be deref, it must be Link::Record(T) to be deref"),
-            Link::Record(r) => {&r}
+impl<T> From<Value> for Link<T>
+where
+    T: SurrealId,
+{
+    fn from(value: Value) -> Self {
+        match value {
+            Value::Thing(id) => Self::Id(id),
+            Value::Object(obj) => Self::Record(Value::Object(obj).into()),
+            _ => panic!("Expected id or object"),
         }
     }
 }
 
-impl <T, R> From<R> for Link<T> where
-    surrealdb::sql::Thing: From<R>,
-    T: Sized + Into<RecordId> {
-    fn from(value: R) -> Self {
-        Self::Id(RecordId::from(value))
+impl<T> Deref for Link<T>
+where
+    T: SurrealId,
+{
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            Link::Id(_) => {
+                panic!("The link can not be deref, it must be Link::Record(T) to be deref")
+            }
+            Link::Record(r) => &r,
+        }
     }
 }
 
-pub trait NewLink<T, P> where T: Into<RecordId> + Sized {
-    fn new (params: P) -> Link<T>;
+pub trait NewLink<T, P>
+where
+    T: SurrealId,
+{
+    fn new(params: P) -> Link<T>;
 }

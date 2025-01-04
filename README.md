@@ -1,5 +1,8 @@
 # <a href="url"><img src="https://github.com/dev-logs/surreal-derive/assets/27767477/a10ad106-83af-48a2-894f-a599613e0d79" width="48"></a>  Surrealdb-id
 
+> **### DEPRECATED**  
+> **This crate has been merged into [surreal_derive v2](https://crates.io/crates/surreal_derive_plus) and [surreal_devl v2](https://crates.io/crates/surreal_devl). Please update your dependencies accordingly.**
+
 # Description:
 Using [SurrealDB](https://surrealdb.com/) is great, but using it with Rust can be tough,  I faced challenges creating a struct for representing
 [RecordId](https://surrealdb.com/docs/surrealdb/surrealql/datamodel/ids) and [ Relate statement](https://surrealdb.com/docs/surrealdb/surrealql/statements/relate)
